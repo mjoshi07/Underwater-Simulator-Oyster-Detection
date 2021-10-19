@@ -17,11 +17,16 @@ def draw_bbox(yolo_data_path):
 
 					with open(os.path.join(root, txt_file), 'r') as f:
 						for line in f.readlines():
-							x = int(float(line.split(" ")[1])*img_w)
-							y = int(float(line.split(" ")[2])*img_h)
-							w = int(float(line.split(" ")[3])*img_w)
-							h = int(float(line.split(" ")[4])*img_h)
+							x_center = float(line.split(" ")[1])*img_w
+							y_center = float(line.split(" ")[2])*img_h
+							w = float(line.split(" ")[3])*img_w
+							h = float(line.split(" ")[4])*img_h
 
+							x = int(x_center - w/2)
+							y = int(y_center - h/2)
+							w = int(w)
+							h = int(h)
+							
 							cv2.rectangle(img, (x,y, w, h), (255, 120, 0), 2)
 
 							cv2.imshow('img', img)
