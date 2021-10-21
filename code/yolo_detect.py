@@ -96,7 +96,7 @@ def detect_objects(weights_path, config_path, img_dir):
 
 if __name__ == "__main__":
 
-    weights_path = "../data/model/yolov4-tiny-custom_last.weights"
+    weights_path = "../data/model/yolov4-tiny-custom_best.weights"
     config_path = "../data/model/yolov4-tiny-custom.cfg"
 
     img_path = "../data/test/test1.jpg"
