@@ -11,6 +11,8 @@ def draw_bbox(yolo_data_path):
 				if file.split('.')[1] == 'txt':
 					txt_file = file
 					img_file = file.split('.')[0] + '.png'
+					if not os.path.exists(img_file):
+						img_file = file.split('.')[0] + '.jpg'
 
 					img = cv2.imread(os.path.join(root, img_file))
 					img_h, img_w = img.shape[:2]
