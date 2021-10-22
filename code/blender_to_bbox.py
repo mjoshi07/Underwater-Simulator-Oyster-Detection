@@ -3,6 +3,7 @@ from mathutils import Vector
 import random
 import os
 import uuid
+import shutil
 
 
 class Box:
@@ -140,35 +141,76 @@ if __name__ == "__main__":
     
     # object names whose bbox you want to save
     # if object is totally outside FOV, its bbox will be ignored
-    mesh_names = ['Cube', 'Cube.001', 'Cube.002']
+    mesh_names = [ 'Mesh_0.001', 'Mesh_0.002','Mesh_0.003','Mesh_0.004'
+    , 'Mesh_0.005', 'Mesh_0.006','Mesh_0.007','Mesh_0.008', 'Mesh_0.009', 'Mesh_0.010'
+    ,'Mesh_0.011','Mesh_0.012', 'Mesh_0.013', 'Mesh_0.014','Mesh_0.015','Mesh_0.016', 'Mesh_0.017', 
+    'Mesh_0.018'    ,'Mesh_0.019','Mesh_0.020','Mesh_0.021']
+    
+    # Objects randomly varying in three regions- small (in around 1/4th FOV), camera (around full camera FOV), large (some objects might go outside FOV)
+    mesh_names_small_region=[ 'Mesh_0.001', 'Mesh_0.002','Mesh_0.003','Mesh_0.004']
+    mesh_names_camera_region=['Mesh_0.005', 'Mesh_0.006','Mesh_0.007','Mesh_0.008', 'Mesh_0.009', 'Mesh_0.010'
+    ,'Mesh_0.011','Mesh_0.012', 'Mesh_0.013', 'Mesh_0.014','Mesh_0.015']
+    mesh_names_large_region=['Landscape.001','Landscape.002','Landscape.003','Landscape.004','Landscape.005'
+    ,'Landscape.006','Landscape.007','Landscape.008','Landscape.009','Landscape.010','Landscape.011'
+    ,'Landscape.012','Landscape.013','Landscape.014','Landscape.015','Landscape.016','Mesh_0.016', 'Mesh_0.017', 'Mesh_0.018','Mesh_0.019','Mesh_0.020','Mesh_0.021']
+    
     mesh_objects = [data.objects[name] for name in mesh_names]
     
-    disp_factor_x=4.5
-    disp_factor_y=4.5
-    N_FRAMES=10
+    # Consts for respective x,y variation
+    small_reg_x=1.3
+    small_reg_y=0.8
+    cam_reg_x=1.3
+    cam_reg_y=0.8
+    large_reg_x=1.5
+    large_reg_y=1.1
+    
+    # No. of images to generate
+    N_FRAMES=5000
     
     
     # for writing text file relative path is fine
     # for rendering images, blender might save it relative to its location
-    path = "./yolo_data/"
+    path = "D:/Blender/yolo_data/"
     if not os.path.exists(path):
         os.makedirs(path)
+    else:
+        shutil.rmtree(path)
+        os.makedirs(path)
         
+
     for i in range(N_FRAMES):
         data = bpy.data
         filename = str(uuid.uuid1())
         filepath = path+filename+'.txt'  
 
-        for mesh in mesh_names:
+        for mesh in mesh_names_small_region:
+            obj=bpy.context.scene.objects[mesh]
+            rn=-random.random()
+            obj.location.x=rn*small_reg_x
+            rn=-random.random()
+            obj.location.y=rn*small_reg_y
+#            
+            
+        for mesh in mesh_names_camera_region:
             obj=bpy.context.scene.objects[mesh]
             rn=2*random.random()-1
-            obj.location.x=rn*disp_factor_x
+            obj.location.x=rn*cam_reg_x
             rn=2*random.random()-1
-            obj.location.y=rn*disp_factor_y
-            obj.rotation_euler.z=rn*2*3.14
-
-        save_path = path+filename+'.png'
+            obj.location.y=rn*cam_reg_y
+#            
+#            
+        for mesh in mesh_names_large_region:
+            obj=bpy.context.scene.objects[mesh]
+            rn=2*random.random()-1
+            obj.location.x=rn*large_reg_x
+            rn=2*random.random()-1
+            obj.location.y=rn*large_reg_y
+         
+        img_path="D:/Blender/yolo_data/"   
+        # Use for HQ render:
+#        bpy.data.cameras['Camera'].dof.use_dof = False
+        save_path = path+filename+'.jpg'
         bpy.context.scene.render.filepath = save_path
         bpy.ops.render.render(write_still = True)
         write_bounds_2d(filepath, scene, cam_object, mesh_objects)
-    
+#       
