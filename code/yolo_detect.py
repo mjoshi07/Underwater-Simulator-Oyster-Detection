@@ -2,8 +2,11 @@ import cv2
 import os
 import numpy as np
 
+conf_thresh = 0.7
+nms_thresh = 0.4
 
-def detect(net, img, conf_thresh=0.4, nms_thresh=0.4):
+def detect(net, img):
+
     (H, W) = img.shape[:2]
     ln = net.getLayerNames()
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
@@ -71,7 +74,7 @@ def detect_img(weights_path, config_path, img_path):
     cv2.waitKey(0)
 
 
-def detect_objects(weights_path, config_path, img_dir):
+def detect_img_dir(weights_path, config_path, img_dir, img_ext='.jpg'):
     """
     Perform detection, provided an img dir path, displays bounding boxes on the objects
     :param weights_path:
@@ -84,14 +87,44 @@ def detect_objects(weights_path, config_path, img_dir):
 
     for root, dirs, files in os.walk(img_dir):
         for file in files:
-            img_name = os.path.join(root, file)
-            img = cv2.imread(img_name)
-            img = detect(net, img)
-            cv2.imshow("detection", img)
-            key = cv2.waitKey(0)
-            if key == ord('q'):
-            	return
+        	if file.split('.')[1] == 'txt':
+	            img_name = os.path.join(root, file.split('.')[0]+img_ext)
+	            img = cv2.imread(img_name)
+	            img = detect(net, img)
+	            cv2.imshow("detection", img)
+	            key = cv2.waitKey(0)
+	            if key == ord('q'):
+	            	return
     pass
+
+
+def detect_video(weights_path, config_path, video_path):
+	"""
+	Perform detection, provided a video path, displays bounding boxes on the objects
+    :param weights_path:
+    :param config_path:
+    :param video_path:
+    :return:
+	"""
+
+	if not os.path.exists(video_path):
+		print("FILE DOES NOT EXISTS")
+		return
+
+	net = cv2.dnn.readNet(weights_path, config_path)
+	cv2.namedWindow("detection", cv2.WINDOW_FREERATIO)
+	cap = cv2.VideoCapture(video_path)
+
+	while True:
+		ret, frame = cap.read()
+		frame = detect(net, frame)
+		cv2.imshow("detection", frame)
+		key = cv2.waitKey(1)
+		if key == ord('q'):
+			return
+		elif key == ord('p'):
+			cv2.waitkey(0)
+
 
 
 if __name__ == "__main__":
@@ -101,3 +134,10 @@ if __name__ == "__main__":
 
     img_path = "../data/test/test1.jpg"
     detect_img(weights_path, config_path, img_path)
+
+    # img_dir = "../data/sample_yolo_data/"	
+    # img_ext = '.png'	
+    # detect_img_dir(weights_path, config_path, img_dir, img_ext)
+
+    # video_path = "../data/test/video_name"
+    # detect_video(weights_path, config_path, video_path)

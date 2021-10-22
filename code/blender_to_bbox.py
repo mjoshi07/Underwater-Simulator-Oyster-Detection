@@ -206,6 +206,7 @@ if __name__ == "__main__":
             rn=2*random.random()-1
             obj.location.y=rn*large_reg_y
          
+        # absolute path for blender to save the images
         img_path="D:/Blender/yolo_data/"   
         # Use for HQ render:
 #        bpy.data.cameras['Camera'].dof.use_dof = False
