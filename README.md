@@ -8,6 +8,9 @@ Ongoing project
 - [x] Train yolo on the generated data from blender
 - [ ] Rover position data with detections on PCL
 
+## Google Colab Notebook
+* colab notebook used to train the yolov4-tiny, find it [here](https://colab.research.google.com/drive/1RePfSTb7c1tPAuh_D-ySLhrG78gxkF9D?usp=sharing)
+* Modified the colab notebook provided [here](https://colab.research.google.com/drive/1_GdoqCJWXsChrOiY8sZMr_zbr_fH-0Fg)
 
 ## Models
 * We trained a yoloV4-tiny on a dataset of around 5000 images
