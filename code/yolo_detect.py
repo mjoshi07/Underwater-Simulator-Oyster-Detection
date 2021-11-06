@@ -123,7 +123,7 @@ def detect_video(weights_path, config_path, video_path):
 		if key == ord('q'):
 			return
 		elif key == ord('p'):
-			cv2.waitkey(0)
+			cv2.waitKey(0)
 
 
 
@@ -132,12 +132,12 @@ if __name__ == "__main__":
     weights_path = "../data/model/yolov4-tiny-custom_best.weights"
     config_path = "../data/model/yolov4-tiny-custom.cfg"
 
-    img_path = "../data/test/test1.jpg"
-    detect_img(weights_path, config_path, img_path)
+    # img_path = "../data/test/test1.jpg"
+    # detect_img(weights_path, config_path, img_path)
 
     # img_dir = "../data/sample_yolo_data/"	
     # img_ext = '.png'	
     # detect_img_dir(weights_path, config_path, img_dir, img_ext)
 
-    # video_path = "../data/test/video_name"
-    # detect_video(weights_path, config_path, video_path)
+    video_path = r"D:\Programming\Underwater-Robotics\data\test\test_slow_motion.avi"
+    detect_video(weights_path, config_path, video_path)
