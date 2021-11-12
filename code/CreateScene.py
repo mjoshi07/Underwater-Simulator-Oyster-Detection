@@ -1,7 +1,7 @@
 # Create Custom Mesh for Ground surface
 
 # Author: Chahat Deep Singh
-# Modified By: Nitesh Jha
+# Modified By: Nitesh Jha, Mayank Joshi
 # University of Maryland. College Park
 # MIT License (c) 2021
 
@@ -30,12 +30,14 @@ END_FRAME = 400
 SURFACE_SIZE = 10
 
 
-def import_bluerov(model_path,bluerov_location=(0,0,0)):
-    bpy.ops.wm.collada_import(filepath=model_path)
 
+
+def add_bluerov(model_path,bluerov_location=(0,0,0)):
+    bpy.ops.wm.collada_import(filepath=model_path)
+    model_name = "BlueROV"
 
     obj=bpy.context.scene.objects["Untitled_282"]
-    obj.name="BlueROV"
+    obj.name=model_name
     # Initial position at origin
     obj.location.x=0
     obj.location.y=0
@@ -48,7 +50,7 @@ def import_bluerov(model_path,bluerov_location=(0,0,0)):
     yaw=0
     bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0,0,0),\
      rotation=(roll, pitch, yaw), scale=(1, 1, 1))
-    bpy.context.object.parent = bpy.data.objects["BlueROV"]
+    bpy.context.object.parent = bpy.data.objects[model_name]
 
     # camera (lidar/sonar) facing front
     roll=3.14                
@@ -56,10 +58,10 @@ def import_bluerov(model_path,bluerov_location=(0,0,0)):
     yaw=0
     bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0,0,0),\
      rotation=(roll, pitch, yaw), scale=(1, 1, 1))
-    bpy.context.object.parent = bpy.data.objects["BlueROV"]
+    bpy.context.object.parent = bpy.data.objects[model_name]
     
     # Move to x,y,z
-    obj=bpy.context.scene.objects["BlueROV"]
+    obj=bpy.context.scene.objects[model_name]
     obj.location.x=bluerov_location[0]
     obj.location.y=bluerov_location[1]
     obj.location.z=bluerov_location[2]
@@ -67,16 +69,19 @@ def import_bluerov(model_path,bluerov_location=(0,0,0)):
     bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
 
     bpy.context.scene.frame_set(120)
-    obj=bpy.context.scene.objects["BlueROV"]
+    obj=bpy.context.scene.objects[model_name]
     obj.location.x=10
     obj.location.y=0
     obj.location.z=10
     
     bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
     bpy.context.scene.frame_set(1)
+
+    # return the front facing camera name and downwards facing camera name
   
 
-def SetCamera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
+
+def set_camera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
     # selects previously generated camera 
     # bpy.ops.object.select_by_type(type='CAMERA')
     
@@ -90,7 +95,7 @@ def SetCamera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
 
 
 # Delete all the current meshes
-def DeleteAllObjects():
+def delete_objs():
     # Select all the Meshes:
     bpy.ops.object.select_by_type(type='MESH')
     
@@ -107,7 +112,7 @@ def DeleteAllObjects():
     bpy.ops.object.select_all(action='DESELECT')
   
 
-def ApplyTexture(PassiveObject, mat):
+def apply_texture(PassiveObject, mat):
     if PassiveObject.data.materials:
         PassiveObject.data.materials[0] = mat
     else:
@@ -115,7 +120,7 @@ def ApplyTexture(PassiveObject, mat):
         
 
 
-def CreateLandscape(FloorNoise=1.2, texture_dir_path=None):
+def create_landscape(FloorNoise=1.2, texture_dir_path=None):
     # Create a plane of Size X, Y, Z
     [mesh_size_x, mesh_size_y, mesh_size_z] = [SURFACE_SIZE, SURFACE_SIZE, 0] # in m
     
@@ -152,7 +157,7 @@ def CreateLandscape(FloorNoise=1.2, texture_dir_path=None):
         texture_path = texture_dir_path + "\\" + random.choice(os.listdir(texture_dir_path))
         texImage.image = bpy.data.images.load(filepath=texture_path) 
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
-        ApplyTexture(PassiveObject, mat)
+        apply_texture(PassiveObject, mat)
         bpy.ops.object.editmode_toggle()
 
         bpy.ops.uv.smart_project()
@@ -168,7 +173,7 @@ def CreateLandscape(FloorNoise=1.2, texture_dir_path=None):
 
 
         
-def AddOysters(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyster=5, max_oyster=None):
+def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyster=5, max_oyster=None):
     
     if model_dir_path is None or not os.path.exists(model_dir_path):
         print("MODELS NOT FOUND")
@@ -264,7 +269,7 @@ def AddOysters(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
                 texPath=texture_dir_path+'\\'+random.choice(texture_names)
                 texImage.image = bpy.data.images.load(filepath=texPath) 
                 mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
-                ApplyTexture(current_Object, mat)
+                apply_texture(current_Object, mat)
                 bpy.ops.object.editmode_toggle()
                 bpy.ops.uv.smart_project()
                 bpy.ops.object.editmode_toggle()
@@ -278,22 +283,24 @@ def AddOysters(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
 
 if __name__ == '__main__':
     
-    # delete all previously created objects in the scene
-    DeleteAllObjects()
+    pass
+
+    # # delete all previously created objects in the scene
+    # delete_objs()
     
     
-    # set arguments for landscape
-    floor_noise=3.5
-    landscape_texture_dir = r"..//data//blender_data//landscape//textures//"
-    CreateLandscape(floor_noise,landscape_texture_dir)
+    # # set arguments for landscape
+    # floor_noise=3.5
+    # landscape_texture_dir = r"..//data//blender_data//landscape//textures//"
+    # create_landscape(floor_noise,landscape_texture_dir)
     
-    # set arguments for oysters
-    n_clusters=1
-    min_oyster=5
-    max_oyster=None
-    oyster_model_dir = r"..//data//blender_data//oysters//model//"
-    oyster_texture_dir = r"..//data//blender_data//oysters//textures//"
-    AddOysters(oyster_model_dir,oyster_texture_dir,n_clusters,min_oyster, max_oyster)
+    # # set arguments for oysters
+    # n_clusters=1
+    # min_oyster=5
+    # max_oyster=None
+    # oyster_model_dir = r"..//data//blender_data//oysters//model//"
+    # oyster_texture_dir = r"..//data//blender_data//oysters//textures//"
+    # add_oyster(oyster_model_dir,oyster_texture_dir,n_clusters,min_oyster, max_oyster)
     
-    # Create camera
-    SetCamera()
+    # # Create camera
+    # set_camera()
