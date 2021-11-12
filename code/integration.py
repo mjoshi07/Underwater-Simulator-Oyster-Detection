@@ -12,6 +12,7 @@ if path not in sys.path:
 
 from create_scene import CreateLandscape, import_bluerov, AddOysters,DeleteAllObjects,ApplyTexture
 from motion_record_IMU import get_position
+from simulate import set_motion
 
 
 START_FRAME = 1
@@ -39,9 +40,8 @@ def render_img(img_dir,keyframe):
 
 
 
-
 def pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_location,oysters_model_dir,oysters_texture_dir,\
-             n_clusters, min_oyster, max_oyster,renders_save_dir):
+             n_clusters, min_oyster, max_oyster,motion_points,renders_save_dir):
     
     CreateLandscape(floor_noise,landscape_texture_dir)
     
@@ -50,6 +50,8 @@ def pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_location,oys
     
     
     AddOysters(oysters_model_dir,oysters_texture_dir, n_clusters, min_oyster, max_oyster)
+
+    set_motion('BlueROV',motion_points)
     
     # TODO: Play the animation
     
@@ -57,10 +59,11 @@ def pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_location,oys
 #   time.sleep(10)
 
     
-    for i in range(20):
+    for i in range(END_FRAME):
         bpy.context.scene.frame_set(i)
         
         x,y,z,rot_x,rot_y,rot_z=get_position('BlueROV')
+        print(x,y,z)
         
 #       TODO
 #       vx_i,vy_i,vz_i,wx_i,wy_i,wz_i=calculate_ideal_imu()
@@ -72,6 +75,11 @@ def pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_location,oys
 #        plot_imu(vx,vy,vz,wx,wy,wz)
 
 #        render_img(renders_save_dir,i)
+#        Render and YOLO detect
+#        render_img(renders_save_dir,i)
+
+#        TODO:lidar plot
+
 
 
     
@@ -93,8 +101,11 @@ if __name__=="__main__":
     min_oyster=5
     max_oyster=None
     
+    # Define motion of BlueROV : {frame: (x,y,z)}
+    motion_points={0:bluerov_location,120:(20,0,10)}
+    
     
     renders_save_dir="D:\\Programming\\Underwater-Robotics\\data\\renders\\"
     
     pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_location,oysters_model_dir,oysters_texture_dir,\
-             n_clusters, min_oyster, max_oyster,renders_save_dir)
+             n_clusters, min_oyster, max_oyster,motion_points,renders_save_dir)

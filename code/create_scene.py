@@ -64,17 +64,9 @@ def import_bluerov(model_path,bluerov_location=(0,0,0)):
     obj.location.y=bluerov_location[1]
     obj.location.z=bluerov_location[2]
 
-    bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
-
-    bpy.context.scene.frame_set(120)
     obj=bpy.context.scene.objects["BlueROV"]
-    obj.location.x=10
-    obj.location.y=0
-    obj.location.z=10
-    
-    bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
-    bpy.context.scene.frame_set(1)
-  
+    obj.location=bluerov_location
+
 
 def SetCamera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
     # selects previously generated camera 
