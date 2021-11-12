@@ -30,12 +30,58 @@ END_FRAME = 400
 SURFACE_SIZE = 10
 
 
+def import_bluerov(model_path,bluerov_location=(0,0,0)):
+    bpy.ops.wm.collada_import(filepath=model_path)
+
+
+    obj=bpy.context.scene.objects["Untitled_282"]
+    obj.name="BlueROV"
+    # Initial position at origin
+    obj.location.x=0
+    obj.location.y=0
+    obj.location.z=0
+    obj.rotation_euler.x=1.57 # Orientation of DAE 
+
+    # camera facing downwards
+    roll=-1.57                # same as obj.rotation_euler.z
+    pitch=0
+    yaw=0
+    bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0,0,0),\
+     rotation=(roll, pitch, yaw), scale=(1, 1, 1))
+    bpy.context.object.parent = bpy.data.objects["BlueROV"]
+
+    # camera (lidar/sonar) facing front
+    roll=3.14                
+    pitch=0
+    yaw=0
+    bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0,0,0),\
+     rotation=(roll, pitch, yaw), scale=(1, 1, 1))
+    bpy.context.object.parent = bpy.data.objects["BlueROV"]
+    
+    # Move to x,y,z
+    obj=bpy.context.scene.objects["BlueROV"]
+    obj.location.x=bluerov_location[0]
+    obj.location.y=bluerov_location[1]
+    obj.location.z=bluerov_location[2]
+
+    bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
+
+    bpy.context.scene.frame_set(120)
+    obj=bpy.context.scene.objects["BlueROV"]
+    obj.location.x=10
+    obj.location.y=0
+    obj.location.z=10
+    
+    bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
+    bpy.context.scene.frame_set(1)
+  
+
 def SetCamera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
     # selects previously generated camera 
-    bpy.ops.object.select_by_type(type='CAMERA')
+    # bpy.ops.object.select_by_type(type='CAMERA')
     
-    # deletes previously generated camera
-    bpy.ops.object.delete()
+    # # deletes previously generated camera
+    # bpy.ops.object.delete()
     
     # creates a new camera object at x,y,z, roll, pitch, yaw
     bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, z),\
@@ -49,6 +95,12 @@ def DeleteAllObjects():
     bpy.ops.object.select_by_type(type='MESH')
     
     # Delete all the objects
+    bpy.ops.object.delete()
+
+     # selects previously generated camera 
+    bpy.ops.object.select_by_type(type='CAMERA')
+    
+    # # deletes previously generated camera
     bpy.ops.object.delete()
     
     # Deselect all (if required):
@@ -92,7 +144,7 @@ def CreateLandscape(FloorNoise=1.2, texture_dir_path=None):
     texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
     
 
-    
+    print("inside createlandscape")
     if texture_dir_path is not None \
     and os.path.exists(texture_dir_path) \
     and len(os.listdir(texture_dir_path)):
