@@ -31,7 +31,6 @@ SURFACE_SIZE = 10
 
 
 
-
 def add_bluerov(model_path,bluerov_location=(0,0,0)):
     bpy.ops.wm.collada_import(filepath=model_path)
     model_name = "BlueROV"
@@ -66,19 +65,10 @@ def add_bluerov(model_path,bluerov_location=(0,0,0)):
     obj.location.y=bluerov_location[1]
     obj.location.z=bluerov_location[2]
 
-    bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
+    obj=bpy.context.scene.objects["BlueROV"]
+    obj.location=bluerov_location
 
-    bpy.context.scene.frame_set(120)
-    obj=bpy.context.scene.objects[model_name]
-    obj.location.x=10
-    obj.location.y=0
-    obj.location.z=10
-    
-    bpy.ops.anim.keyframe_insert_menu(type='BUILTIN_KSI_LocRot')
-    bpy.context.scene.frame_set(1)
-
-    # return the front facing camera name and downwards facing camera name
-  
+    # return front_cam, down_cam
 
 
 def set_camera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
