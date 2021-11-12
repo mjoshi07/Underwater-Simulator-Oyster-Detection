@@ -5,6 +5,9 @@ import os
 import uuid
 import shutil
 
+"""
+TODO - cite the main source of the code
+"""
 
 class Box:
 
@@ -170,7 +173,7 @@ if __name__ == "__main__":
     
     # for writing text file relative path is fine
     # for rendering images, blender might save it relative to its location
-    path = "D:/Blender/yolo_data/"
+    path = "..//data//yolo_data//"
     if not os.path.exists(path):
         os.makedirs(path)
     else:
@@ -206,12 +209,10 @@ if __name__ == "__main__":
             rn=2*random.random()-1
             obj.location.y=rn*large_reg_y
          
-        # absolute path for blender to save the images
-        img_path="D:/Blender/yolo_data/"   
         # Use for HQ render:
-#        bpy.data.cameras['Camera'].dof.use_dof = False
-        save_path = path+filename+'.jpg'
+        bpy.data.cameras['Camera'].dof.use_dof = False
+        save_path = path+filename+'.png'
         bpy.context.scene.render.filepath = save_path
-        bpy.ops.render.render(write_still = True)
+        bpy.ops.render.render(write_still = False)
         write_bounds_2d(filepath, scene, cam_object, mesh_objects)
 #       
