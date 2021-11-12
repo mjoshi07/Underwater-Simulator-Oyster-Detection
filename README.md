@@ -3,7 +3,7 @@ Ongoing project
 
 ## Tasks
 - [x] 2D bounding Box of objects from Blender `2.93`
-- [ ] Integrate IMU with blender
+- [x] Integrate IMU with blender
 - [x] Integrate LiDAR/SONAR with blender
 - [x] Train yolo on the generated data from blender
 - [ ] Rover position data with detections on PCL
