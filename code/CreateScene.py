@@ -47,17 +47,15 @@ def add_bluerov(model_path,bluerov_location=(0,0,0)):
     roll=-1.57                # same as obj.rotation_euler.z
     pitch=0
     yaw=0
-    bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0,0,0),\
-     rotation=(roll, pitch, yaw), scale=(1, 1, 1))
-    bpy.context.object.parent = bpy.data.objects[model_name]
+    bottom_cam, cam_obj = set_camera(0,0,0,roll, pitch, yaw)
+    cam_obj.parent = bpy.data.objects[model_name]
 
     # camera (lidar/sonar) facing front
     roll=3.14                
     pitch=0
     yaw=0
-    bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(0,0,0),\
-     rotation=(roll, pitch, yaw), scale=(1, 1, 1))
-    bpy.context.object.parent = bpy.data.objects[model_name]
+    front_cam, cam_obj2 = set_camera(0,0,0,roll, pitch, yaw)
+    cam_obj2.parent = bpy.data.objects[model_name]
     
     # Move to x,y,z
     obj=bpy.context.scene.objects[model_name]
@@ -68,19 +66,15 @@ def add_bluerov(model_path,bluerov_location=(0,0,0)):
     obj=bpy.context.scene.objects["BlueROV"]
     obj.location=bluerov_location
 
-    # return front_cam, down_cam
+    return front_cam, bottom_cam
 
 
 def set_camera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
-    # selects previously generated camera 
-    # bpy.ops.object.select_by_type(type='CAMERA')
-    
-    # # deletes previously generated camera
-    # bpy.ops.object.delete()
-    
     # creates a new camera object at x,y,z, roll, pitch, yaw
     bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=(x, y, z),\
      rotation=(roll, pitch, yaw), scale=(1, 1, 1))
+    
+    return bpy.context.object.name, bpy.context.object
 
 
 
@@ -138,13 +132,15 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
     bsdf = mat.node_tree.nodes["Principled BSDF"]
     texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
     
-
-    print("inside createlandscape")
     if texture_dir_path is not None \
     and os.path.exists(texture_dir_path) \
     and len(os.listdir(texture_dir_path)):
         # randomly select a texture from texture dir
-        texture_path = texture_dir_path + "\\" + random.choice(os.listdir(texture_dir_path))
+        texture_path = texture_dir_path + "//" + random.choice(os.listdir(texture_dir_path))
+        if not os.path.exists(texture_path):
+            print("CHECK RELATIVE PATH AGAIN")
+            return True
+        print(texture_path)
         texImage.image = bpy.data.images.load(filepath=texture_path) 
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
         apply_texture(PassiveObject, mat)
@@ -184,6 +180,8 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
     
     # list of mesh names in model_dir_path
     mesh_names=os.listdir(model_dir_path)
+
+
     # list of textures in texture_dir_path
     if texture_dir_path is None:
         texture_names = []
