@@ -217,7 +217,6 @@ def acc_gen(fs, ref_a, acc_err, vib_def=None):
     Returns:
         a_mea: nx3 measured acc data
     """
-    print("inside acc_gen")
     dt = 1.0/fs
     # total data count
     n = ref_a.shape[0]
@@ -244,20 +243,12 @@ def acc_gen(fs, ref_a, acc_err, vib_def=None):
             acc_vib[:, 2] = vib_def['z'] * np.sin(2.0*math.pi*vib_def['freq']*dt*np.arange(n))
     # accelerometer white noise
     acc_noise = np.random.randn(n, 3)
-    print( "value is:",acc_err['vrw'][0] / math.sqrt(dt) * acc_noise[:, 0])
     acc_noise[:, 0] = acc_err['vrw'][0] / math.sqrt(dt) * acc_noise[:, 0]
-    print("acc_noise)")
-    print(acc_noise[:,1].shape)
-    val=acc_err['vrw'][1] / math.sqrt(dt) * acc_noise[:, 1]
-    print(val.shape)
     acc_noise[:, 1] = acc_err['vrw'][1] / math.sqrt(dt) * acc_noise[:, 1]
-    print("reached here")
     acc_noise[:, 2] = acc_err['vrw'][2] / math.sqrt(dt) * acc_noise[:, 2]
-    print("reached here as well")
+
     # true + constant_bias + bias_drift + noise
-    print(ref_a.shape,acc_bias.shape,acc_bias_drift.shape,acc_noise.shape,acc_vib.shape)
     a_mea = ref_a + acc_bias + acc_bias_drift + acc_noise + acc_vib
-    print("last part")
     return a_mea
 
 
