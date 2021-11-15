@@ -362,7 +362,6 @@ def run_gyro_demo():
     print(real_gyro)
 
 
-
 def get_vel(p2, p1, dt):
     v = (p2 - p1)/dt
     return v
@@ -385,75 +384,63 @@ def cal_imu_step(imu_rate, frame_rate):
     """
 
     imu_step = int(imu_rate/frame_rate)  # (f_dt/imu_dt)
+    if imu_step <= 1:
+        print("ERROR: IMU RATE SMALLER THAN TO FRAME RATE")
+        exit()
 
     return imu_step
 
 
-def cal_linear_acc(x_array, y_array, z_array, imu_rate=30.0, frame_rate=30.0):
+def cal_linear_acc(x_array, y_array, z_array, imu_rate=30.0):
     """
     param: array of positions for x, y, z
     brief: at least 3 positions values for x y z each from time t1 to t2 to t3 or tn
             we will be calculating the values at frame_rate of video, i.e at 30 frame_rate if not specified
-    return: ax, ay, az
+    return: ndarray of size Nx3, N is the size of the array
     """
-    ax_array = []
-    ay_array = []
-    az_array = []
 
-    f_dt = 1.0/frame_rate
-
-    imu_step = cal_imu_step(imu_rate, frame_rate)
-
+    dt = 1.0/imu_rate
+    step = 1
     i = 0
     accel_data = []
+
     while len(x_array) - 1 >= i:
-        if i-2*imu_step >= 0:
-            ax = get_acc(x_array[i], x_array[i-imu_step], x_array[i-2*imu_step], f_dt)
-            ay = get_acc(y_array[i], y_array[i-imu_step], y_array[i-2*imu_step], f_dt)
-            az = get_acc(z_array[i], z_array[i-imu_step], z_array[i-2*imu_step], f_dt)
+        if i-2*step >= 0:
+            ax = get_acc(x_array[i], x_array[i-step], x_array[i-2*step], dt)
+            ay = get_acc(y_array[i], y_array[i-step], y_array[i-2*step], dt)
+            az = get_acc(z_array[i], z_array[i-step], z_array[i-2*step], dt)
             
             data = np.array([ax, ay, az])
             accel_data.append(data)
 
-            # ax_array.append(ax)
-            # ay_array.append(ay)
-            # az_array.append(az)
-
-        i += imu_step
+        i += step
 
     return np.asarray(accel_data)
 
 
-def cal_angular_vel(roll_array, pitch_array, yaw_array, imu_rate=30.0, frame_rate=30.0):
+def cal_angular_vel(roll_array, pitch_array, yaw_array, imu_rate=30.0):
     """
     param: array of positions for roll, pitch, yaw
     brief: at least 2 positions values for roll pitch yaw each from time t1 to t2
-    return: wx, wy, wz
+    return: ndarray of size Nx3, N is the size of the array
     """
-    wx_array = []
-    wy_array = []
-    wz_array = []
 
-    f_dt = 1.0/frame_rate
-    imu_step = cal_imu_step(imu_rate, frame_rate)
-
+    dt = 1.0/imu_rate
+    step = 1
     i = 0
     gyro_data = []
+
     while len(roll_array) - 1 >= i:
 
-        if i-imu_step >= 0:
-            wx = get_vel(roll_array[i], roll_array[i - imu_step], f_dt)
-            wy = get_vel(pitch_array[i], pitch_array[i - imu_step], f_dt)
-            wz = get_vel(yaw_array[i],  yaw_array[i - imu_step], f_dt)
+        if i-step >= 0:
+            wx = get_vel(roll_array[i], roll_array[i - step], dt)
+            wy = get_vel(pitch_array[i], pitch_array[i - step], dt)
+            wz = get_vel(yaw_array[i],  yaw_array[i - step], dt)
 
             data = np.array([wx, wy, wz])
             gyro_data.append(data)
 
-            # wx_array.append(wx)
-            # wy_array.append(wy)
-            # wz_array.append(wz)
-
-        i += imu_step
+        i += step
 
     return np.asarray(gyro_data)
 
