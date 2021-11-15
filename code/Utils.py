@@ -1,5 +1,5 @@
 import bpy
-import csv
+# import csv
 # import matplotlib.pyplot as plt
 # import matplotlib.ticker
 # from matplotlib.colors import LinearSegmentedColormap
@@ -18,12 +18,60 @@ EPSILON = 1e-10
 MAX_INT = 1e8
 
 
-def render_img(img_dir,keyframe, camera_name='Camera'): 
-    bpy.data.cameras[camera_name].dof.use_dof = False
-    bpy.context.scene.camera=bpy.data.objects[camera_name]
-    save_path = img_dir+"//"+str(keyframe)+'.png'
-    bpy.context.scene.render.filepath = save_path
-    bpy.ops.render.render(write_still = True)
+def save_values(out_dir, out_filename, data):
+    """
+    param: out_dir
+    param: data - list of lists, all lists in the data should have same size
+    brief: saves the data in a text file inside the specified out dir
+            if the text file is present then it would append the new data, else create a new text file and save in it
+    """
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    if os.path.isfile(os.path.join(out_dir, out_filename)):
+        write_mode = "a"
+    else:
+        write_mode = "w"
+    with open(os.path.join(out_dir, out_filename), write_mode) as file:
+        for i in range(len(data[0])):
+            data_to_write = ""
+            for idx, item in enumerate(data):
+                if idx == len(data) - 1:
+                    end_char = "\n"
+                else:
+                    end_char = ", "
+                data_to_write += str(item[i]) + end_char
+            file.write(data_to_write)
+    file.close()
+
+
+def render_img(img_dir,keyframe, camera_name='Camera', save_RGB=True, save_DEPTH=False, save_both=False):
+
+    if save_both:
+        save_RGB = True
+        save_DEPTH = True
+
+    if save_RGB:
+        rgb_dir = os.path.join(img_dir, "RGB_imgs")
+        if not os.path.exists(rgb_dir):
+            os.makedirs(rgb_dir)
+        # save rendered rgb img
+        bpy.data.cameras[camera_name].dof.use_dof = False
+        bpy.context.scene.camera = bpy.data.objects[camera_name]
+        save_path = rgb_dir+"//"+str(keyframe)+'.png'
+        bpy.context.scene.render.filepath = save_path
+        bpy.ops.render.render(write_still=True)
+
+    if save_DEPTH:
+        depth_dir = os.path.join(img_dir, "DEPTH_imgs")
+        if not os.path.exists(depth_dir):
+            os.makedirs(depth_dir)
+        # save rendered depth img
+        bpy.data.cameras[camera_name].dof.use_dof = False
+        bpy.context.scene.camera = bpy.data.objects[camera_name]
+        save_path = depth_dir+"//"+str(keyframe)+'.png'
+        bpy.context.scene.render.filepath = save_path
+        bpy.ops.render.render(write_still=True)
 
 
 def get_position(object_name):
