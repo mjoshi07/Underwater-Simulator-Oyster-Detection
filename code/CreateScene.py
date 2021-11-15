@@ -68,6 +68,12 @@ def add_bluerov(model_path,bluerov_location=(0,0,0)):
 
     return front_cam, bottom_cam
 
+def set_light(x=0,y=0,z=60,energy=50000):
+    bpy.ops.object.light_add(type='POINT', radius=1, align='WORLD', location=(x,y,z), scale=(1, 1, 1))
+    # bpy.context.space_data.context = 'DATA'
+    bpy.context.object.data.energy = energy
+
+
 
 def set_camera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
     # creates a new camera object at x,y,z, roll, pitch, yaw

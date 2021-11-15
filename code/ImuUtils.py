@@ -225,6 +225,7 @@ def acc_gen(fs, ref_a, acc_err, vib_def=None):
     acc_bias = acc_err['b']
     # bias drift
     acc_bias_drift = bias_drift(acc_err['b_corr'], acc_err['b_drift'], n, fs)
+    
     # vibrating acceleration
     acc_vib = np.zeros((n, 3))
     if vib_def is not None:
@@ -245,6 +246,7 @@ def acc_gen(fs, ref_a, acc_err, vib_def=None):
     acc_noise[:, 0] = acc_err['vrw'][0] / math.sqrt(dt) * acc_noise[:, 0]
     acc_noise[:, 1] = acc_err['vrw'][1] / math.sqrt(dt) * acc_noise[:, 1]
     acc_noise[:, 2] = acc_err['vrw'][2] / math.sqrt(dt) * acc_noise[:, 2]
+
     # true + constant_bias + bias_drift + noise
     a_mea = ref_a + acc_bias + acc_bias_drift + acc_noise + acc_vib
     return a_mea

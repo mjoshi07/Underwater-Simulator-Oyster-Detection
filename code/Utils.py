@@ -1,10 +1,10 @@
 import bpy
 import csv
-import matplotlib.pyplot as plt
-import matplotlib.ticker
-from matplotlib.colors import LinearSegmentedColormap
-import matplotlib.patches as mpatches
-from matplotlib.collections import PatchCollection
+# import matplotlib.pyplot as plt
+# import matplotlib.ticker
+# from matplotlib.colors import LinearSegmentedColormap
+# import matplotlib.patches as mpatches
+# from matplotlib.collections import PatchCollection
 from math import floor, ceil
 
 
@@ -20,6 +20,7 @@ MAX_INT = 1e8
 
 def render_img(img_dir,keyframe, camera_name='Camera'): 
     bpy.data.cameras[camera_name].dof.use_dof = False
+    bpy.context.scene.camera=bpy.data.objects[camera_name]
     save_path = img_dir+"//"+str(keyframe)+'.png'
     bpy.context.scene.render.filepath = save_path
     bpy.ops.render.render(write_still = True)
