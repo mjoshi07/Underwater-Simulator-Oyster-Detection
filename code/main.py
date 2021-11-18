@@ -9,7 +9,7 @@ if path not in sys.path:
     sys.path.append(path)
 
 from CreateScene import delete_objs, create_landscape, add_bluerov, add_oyster, set_camera, set_light
-from Utils import get_position, render_img, save_values
+from Utils import get_position, render_img, save_values, save_plots
 from ImuUtils import  cal_linear_acc, cal_angular_vel, acc_gen, gyro_gen, accel_high_accuracy, gyro_high_accuracy, vib_from_env, cal_imu_step
 from RangeScanner import run_scanner, tupleToArray
 import range_scanner
@@ -143,7 +143,7 @@ def start_pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_locati
             pitch_array.append(rot_y)
             yaw_array.append(rot_z)
 
-            if frame_count > 3:
+            if frame_count >= TIME_TO_WAIT+3:
                 # calculate true accelerometer values
                 true_accel = cal_linear_acc(x_array, y_array, z_array, IMU_RATE)
 
@@ -185,7 +185,7 @@ def start_pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_locati
                     if save_scanner:
                         data_2_write = [x_coordinates, y_coordinates, z_coordinates, distances]
                         save_values(scanner_dir, SCANNER_FILENAME, data_2_write)
-
+                        save_plots(scanner_dir, str(frame_count)+".png", data_2_write, [x, y, z])
                     # plot the coordinates, distances and intensities for each point of time
 
             # save only some frames depending on the imu rate and frame rate
