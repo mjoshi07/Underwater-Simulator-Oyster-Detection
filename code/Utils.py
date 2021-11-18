@@ -1,6 +1,6 @@
 import bpy
 # import csv
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # import matplotlib.ticker
 # from matplotlib.colors import LinearSegmentedColormap
 # import matplotlib.patches as mpatches
@@ -16,6 +16,41 @@ import os
 
 EPSILON = 1e-10
 MAX_INT = 1e8
+
+
+def convert_2_polar(x, y, d):
+    theta = np.arctan2(y, x)
+    r = d
+
+    return r, theta
+
+
+def save_plots(out_dir, out_filename, data, center_offset):
+
+    # create a new dir inside out_dir named "plots" and save in it
+    plot_dir = os.path.join(out_dir, "plots")
+    if not os.path.exists(plot_dir):
+        os.makedirs(plot_dir)
+
+    x_coordinates = data[0]
+    y_coordinates = data[1]
+    z_coordinates = data[2]  # we dont care about the z coordinate of the scanned objects
+    distances = data[3]
+
+    Rs = []
+    ThetaS = []
+
+    for x, y, d in zip(x_coordinates, y_coordinates, distances):
+        # since x, y of the scanned objects are in respect to origin, we shift origin to center_offset
+        x -= center_offset[0]
+        y -= center_offset[1]
+
+        r, theta = convert_2_polar(x, y, d)
+        Rs.append(r)
+        ThetaS.append(theta)
+
+    plt.polar(ThetaS, Rs, marker='o')
+    plt.savefig(os.path.join(plot_dir, out_filename))
 
 
 def save_values(out_dir, out_filename, data):
@@ -392,7 +427,16 @@ def arrange_values(r, theta, intensity):
 #     plt.show()
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+
+    # x = [11, 12, 13, 14, 15, 10, 10, 10, 10, 10]
+    # y = [10, 10, 10, 10, 10, 10, 12, 13, 14, 15]
+    # z = []
+    # d = [10, 10, 10, 10, 10, 10, 11, 12, 13, 14, 15]
+    #
+    # center_offset = [0, 0, 0]
+    #
+    # save_plots("./temp", "temp.png", [x, y, z, d], center_offset)
 #     # arrange_values(0,0,0)
 
 #     csv_file1 = "E:\\programming\\github\\SONAR-sim\\blender\\example_scenes\\output\\general_object_sonar\\7_test_sonar_test_frame_130.csv"
