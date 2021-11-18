@@ -11,6 +11,7 @@ if path not in sys.path:
     sys.path.append(path)
 
 import range_scanner
+from CreateScene import create_landscape
 
 
 def run_scanner(context, scannerObject):    # Velodyne LiDAR
@@ -65,6 +66,10 @@ if __name__ == "__main__":
     try:
         context = bpy.context
         scanner_object = context.scene.objects["Camera"]
+        floor_noise = 3.5
+        base_dir_path = ""
+        landscape_texture_dir = base_dir_path + "/data/blender_data/landscape/textures//"
+        create_landscape(floor_noise, landscape_texture_dir)
         # print(bpy.context.area)
         scan_values = run_scanner(context, scanner_object)
         mappedData = np.array(list(map(lambda hit: tupleToArray(hit), scan_values))).transpose()
