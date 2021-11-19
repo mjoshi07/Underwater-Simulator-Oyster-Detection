@@ -25,7 +25,7 @@ except:
 # List of Flags:
 
 START_FRAME = 1
-END_FRAME = 400
+END_FRAME = 200
 
 SURFACE_SIZE = 10
 
@@ -69,6 +69,12 @@ def add_bluerov(model_path,bluerov_location=(0,0,0)):
     return front_cam, bottom_cam
 
 def set_light(x=0,y=0,z=60,energy=50000):
+    # Select all the lights:
+    bpy.ops.object.select_by_type(type='LIGHT')
+
+    # Delete all the lights:
+    bpy.ops.object.delete()
+
     bpy.ops.object.light_add(type='POINT', radius=1, align='WORLD', location=(x,y,z), scale=(1, 1, 1))
     # bpy.context.space_data.context = 'DATA'
     bpy.context.object.data.energy = energy
@@ -86,6 +92,12 @@ def set_camera(x=0, y=0, z=2, roll=0, pitch=0, yaw=0):
 
 # Delete all the current meshes
 def delete_objs():
+    # Select all the lights:
+    bpy.ops.object.select_by_type(type='LIGHT')
+
+    # Delete all the lights:
+    bpy.ops.object.delete()
+
     # Select all the Meshes:
     bpy.ops.object.select_by_type(type='MESH')
     
@@ -97,6 +109,8 @@ def delete_objs():
     
     # # deletes previously generated camera
     bpy.ops.object.delete()
+
+    
     
     # Deselect all (if required):
     bpy.ops.object.select_all(action='DESELECT')
@@ -124,7 +138,7 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
     noise_val=random.randint(0,100)
     
     bpy.ops.mesh.landscape_add(ant_terrain_name="Landscape", land_material="", water_material="", texture_block="", at_cursor=False, smooth_mesh=True, \
-        tri_face=False, sphere_mesh=False, subdivision_x=256, subdivision_y=256, mesh_size=2, mesh_size_x=mesh_size_x, mesh_size_y=mesh_size_y, random_seed=noise_val, \
+        tri_face=False, sphere_mesh=False, subdivision_x=512, subdivision_y=512, mesh_size=2, mesh_size_x=mesh_size_x, mesh_size_y=mesh_size_y, random_seed=noise_val, \
         noise_offset_x=0, noise_offset_y=0, noise_offset_z=1, noise_size_x=1, noise_size_y=1, noise_size_z=2, noise_size=3, noise_type=noise_type, \
         basis_type='BLENDER', vl_basis_type='VORONOI_F1', distortion=1.5, hard_noise='1', noise_depth=8, amplitude=1.47, frequency=1.71, dimension=FloorNoise,\
         lacunarity=2, offset=1, gain=1, marble_bias='1', marble_sharp='5', marble_shape='3', height=1, height_invert=False, height_offset=0, fx_mixfactor=0, \
@@ -132,6 +146,7 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
         fx_invert=False, fx_offset=0, edge_falloff='0', falloff_x=4, falloff_y=4, edge_level=0, maximum=5, minimum=-0.5, vert_group="", strata=5, strata_type='0',\
         water_plane=False, water_level=0.01, remove_double=False, show_main_settings=True, show_noise_settings=True, show_displace_settings=True, refresh=True, auto_refresh=True)
     bpy.context.active_object.name = 'Landscape'
+
     PassiveObject = bpy.context.view_layer.objects.active
     mat = bpy.data.materials.new(name='Texture')
     mat.use_nodes = True
@@ -150,11 +165,13 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
         texImage.image = bpy.data.images.load(filepath=texture_path) 
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
         apply_texture(PassiveObject, mat)
-        bpy.ops.object.editmode_toggle()
-
+        
+        bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.uv.smart_project()
-
-    # set terrain rigidbody to Passive
+        
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # # set terrain rigidbody to Passive
     bpy.ops.rigidbody.object_add(type='PASSIVE')
                 
     # Low Poly
@@ -221,10 +238,10 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
         var_y=SURFACE_SIZE*0.10
         
         # Z is sequentially incremented for oyster within a cluster
-        z_val=0
+        z_val=0.5
 
         for mesh_name in cluster_mesh_names:
-            z_val+=1
+            z_val+=.1   
             oyster_file_path=model_dir_path + "\\" + mesh_name
             bpy.ops.import_mesh.stl(filepath=oyster_file_path)
             bpy.ops.object.origin_set(type='GEOMETRY_ORIGIN', center='MEDIAN')
@@ -232,7 +249,7 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
             # Low Poly
             bpy.ops.object.modifier_add(type='DECIMATE')
             bpy.ops.object.modifier_set_active(modifier="Decimate")
-            bpy.context.object.modifiers["Decimate"].ratio = 0.008
+            bpy.context.object.modifiers["Decimate"].ratio = 0.3
             
             # Set oyster scales
             bpy.context.object.scale[0] = 0.005
@@ -264,15 +281,31 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
                 texImage.image = bpy.data.images.load(filepath=texPath) 
                 mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
                 apply_texture(current_Object, mat)
-                bpy.ops.object.editmode_toggle()
+                bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.uv.smart_project()
-                bpy.ops.object.editmode_toggle()
+                
             
+            bpy.ops.object.mode_set(mode='OBJECT')
+
             #Deselect all
             bpy.ops.object.select_all(action='DESELECT')
 
    
+def add_water(surface_size,depth):
+     # Make world color blue
+    bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[0].default_value = (0.01, 0.383, 0.262, 1)
     
+    # Add water cube, scale it to surface size and depth
+    bpy.ops.mesh.primitive_cube_add(size=2, enter_editmode=False, align='WORLD', location=(0, 0, 0),\
+     scale=(5, 5, 1))
+    
+    water_object=bpy.context.view_layer.objects.active
+    mat = bpy.data.materials.new(name='Volume')
+    mat.use_nodes = True
+    volume = mat.node_tree.nodes.get('Principled Volume')
+    
+#    water_object.materials.
+    water_object.data.materials[0] = mat   
 
 
 if __name__ == '__main__':
