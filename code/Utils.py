@@ -80,7 +80,7 @@ def save_values(out_dir, out_filename, data):
     file.close()
 
 
-def render_img(img_dir,keyframe, camera_name='Camera', save_RGB=True, save_DEPTH=False, save_both=False):
+def render_img(img_dir,keyframe, camera_name='Camera', save_RGB=True, save_DEPTH=False, save_both=False, max_depth=10):
 
     if save_both:
         save_RGB = True
@@ -94,9 +94,13 @@ def render_img(img_dir,keyframe, camera_name='Camera', save_RGB=True, save_DEPTH
         bpy.data.cameras[camera_name].dof.use_dof = False
         bpy.context.scene.camera = bpy.data.objects[camera_name]
         save_path = rgb_dir+"//"+str(keyframe)+'.png'
-        bpy.context.scene.render.filepath = save_path
+        r = bpy.context.scene.render
+        r.resolution_x = 640
+        r.resolution_y = 480
+        r.filepath=save_path
         bpy.ops.render.render(write_still=True)
-
+        
+    
     if save_DEPTH:
         depth_dir = os.path.join(img_dir, "DEPTH_imgs")
         if not os.path.exists(depth_dir):
@@ -104,9 +108,29 @@ def render_img(img_dir,keyframe, camera_name='Camera', save_RGB=True, save_DEPTH
         # save rendered depth img
         bpy.data.cameras[camera_name].dof.use_dof = False
         bpy.context.scene.camera = bpy.data.objects[camera_name]
+        bpy.context.scene.view_layers["View Layer"].use_pass_mist = True
+        bpy.context.scene.use_nodes = True
+        tree = bpy.context.scene.node_tree
+        links = tree.links
+        for n in tree.nodes:
+            tree.nodes.remove(n)
+        rl = tree.nodes.new(type="CompositorNodeRLayers")
+        composite = tree.nodes.new(type="CompositorNodeComposite")
+        composite.location = 200, 0
+        links.new(rl.outputs['Mist'], composite.inputs['Image'])
+        bpy.context.scene.world.mist_settings.start = 0
+        bpy.context.scene.world.mist_settings.depth = max_depth
+        scene = bpy.context.scene
         save_path = depth_dir+"//"+str(keyframe)+'.png'
-        bpy.context.scene.render.filepath = save_path
+        scene.render.filepath=save_path
+        r = bpy.context.scene.render
+        r.resolution_x = 640
+        r.resolution_y = 480
+        r.filepath=save_path
         bpy.ops.render.render(write_still=True)
+        bpy.context.scene.view_layers["View Layer"].use_pass_mist = False
+        bpy.context.scene.use_nodes = False
+        
 
 
 def get_position(object_name):
@@ -428,6 +452,7 @@ def arrange_values(r, theta, intensity):
 
 
 if __name__ == "__main__":
+    pass
 
     # x = [11, 12, 13, 14, 15, 10, 10, 10, 10, 10]
     # y = [10, 10, 10, 10, 10, 10, 12, 13, 14, 15]
