@@ -13,7 +13,7 @@ import math, mathutils
 
 from .. import error_distribution
 from .. import material_helper
-from ..export import exporter
+# from ..export import exporter
 from . import hit_info
 from .. import fresnel
 from ..ui import user_interface

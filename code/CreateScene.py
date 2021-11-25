@@ -27,7 +27,7 @@ except:
 START_FRAME = 1
 END_FRAME = 200
 
-SURFACE_SIZE = 10
+SURFACE_SIZE = 50
 
 
 
@@ -44,15 +44,15 @@ def add_bluerov(model_path,bluerov_location=(0,0,0)):
     obj.rotation_euler.x=1.57 # Orientation of DAE 
 
     # camera facing downwards
-    roll=-1.57                # same as obj.rotation_euler.z
+    roll=1.57                # same as obj.rotation_euler.z
     pitch=0
-    yaw=0
+    yaw=3.14159
     bottom_cam, cam_obj = set_camera(0,0,0,roll, pitch, yaw)
     cam_obj.parent = bpy.data.objects[model_name]
 
     # camera (lidar/sonar) facing front
-    roll=3.14                
-    pitch=0
+    roll=-0.436332           
+    pitch=3.14159
     yaw=0
     front_cam, cam_obj2 = set_camera(0,0,0,roll, pitch, yaw)
     cam_obj2.parent = bpy.data.objects[model_name]
@@ -124,9 +124,11 @@ def apply_texture(PassiveObject, mat):
         
 
 
-def create_landscape(FloorNoise=1.2, texture_dir_path=None):
+def create_landscape(FloorNoise=1.2, texture_dir_path=None, surface_size=None):
     # Create a plane of Size X, Y, Z
-    [mesh_size_x, mesh_size_y, mesh_size_z] = [SURFACE_SIZE, SURFACE_SIZE, 0] # in m
+    if surface_size is None:
+        surface_size = SURFACE_SIZE
+    [mesh_size_x, mesh_size_y, mesh_size_z] = [surface_size, surface_size, 0] # in m
     
     # list of acceptable noise type for terrain generation
     noise=['multi_fractal', 'hybrid_multi_fractal',\
@@ -146,6 +148,12 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
         fx_invert=False, fx_offset=0, edge_falloff='0', falloff_x=4, falloff_y=4, edge_level=0, maximum=5, minimum=-0.5, vert_group="", strata=5, strata_type='0',\
         water_plane=False, water_level=0.01, remove_double=False, show_main_settings=True, show_noise_settings=True, show_displace_settings=True, refresh=True, auto_refresh=True)
     bpy.context.active_object.name = 'Landscape'
+
+    # scale up the created landscape and then apply texture
+    bpy.context.object.scale[0] = 10
+    bpy.context.object.scale[1] = 10
+    bpy.context.object.scale[2] = 10
+
 
     PassiveObject = bpy.context.view_layer.objects.active
     mat = bpy.data.materials.new(name='Texture')
@@ -181,8 +189,12 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
     bpy.context.object.rigid_body.collision_shape = 'MESH'
 
 
+
         
-def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyster=5, max_oyster=None):
+def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyster=5, max_oyster=None, surface_size=None):
+
+    if surface_size is None:
+        surface_size = SURFACE_SIZE
     
     if model_dir_path is None or not os.path.exists(model_dir_path):
         print("MODELS NOT FOUND")
@@ -195,8 +207,8 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
         cal_n_oysters = False
     
     # calculate cluster offset values
-    cluster_offset_x=SURFACE_SIZE*0.15
-    cluster_offset_y=SURFACE_SIZE*0.15
+    cluster_offset_x=surface_size*0.15
+    cluster_offset_y=surface_size*0.15
     
     # list of -1 and 1 to choose sign for cluster offset 
     signs=[-1,1,1,-1,-1,1,-1]
@@ -219,23 +231,23 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
         cluster_mesh_names = [random.choice(mesh_names) for i in range(n_oyster)]
         
         # Set center of cluster around which oysters will be dispersed
-        cluster_center=[(random.random()*2-1)*SURFACE_SIZE*.50 + random.choice(signs)*cluster_offset_x,(random.random()*2-1)*SURFACE_SIZE*0.50+random.choice(signs)*cluster_offset_y]
+        cluster_center=[(random.random()*2-1)*surface_size*.50 + random.choice(signs)*cluster_offset_x,(random.random()*2-1)*surface_size*0.50+random.choice(signs)*cluster_offset_y]
         
         # Boundary condition in x axis
-        if cluster_center[0] > SURFACE_SIZE*0.37:
-            cluster_center[0]  = SURFACE_SIZE*0.37
-        elif cluster_center[0] < -SURFACE_SIZE*0.37:
-            cluster_center[0]  = -SURFACE_SIZE*0.37
+        if cluster_center[0] > surface_size*0.37:
+            cluster_center[0]  = surface_size*0.37
+        elif cluster_center[0] < -surface_size*0.37:
+            cluster_center[0]  = -surface_size*0.37
         
         # Boundary condition in y axis
-        if cluster_center[1] > SURFACE_SIZE*0.37:
-            cluster_center[1]  = SURFACE_SIZE*0.37
-        elif cluster_center[1] < -SURFACE_SIZE*0.37:
-            cluster_center[1]  = -SURFACE_SIZE*0.37
+        if cluster_center[1] > surface_size*0.37:
+            cluster_center[1]  = surface_size*0.37
+        elif cluster_center[1] < -surface_size*0.37:
+            cluster_center[1]  = -surface_size*0.37
         
         # Variation in coordinates within a cluster
-        var_x=SURFACE_SIZE*0.10
-        var_y=SURFACE_SIZE*0.10
+        var_x=surface_size*0.10
+        var_y=surface_size*0.10
         
         # Z is sequentially incremented for oyster within a cluster
         z_val=0.5

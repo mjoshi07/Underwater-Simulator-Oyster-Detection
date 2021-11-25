@@ -12,7 +12,7 @@ ScannerType = Enum('ScannerType', 'static rotating sideScan')
 
 from . import lidar
 from . import sonar
-from ..export import exporter
+# from ..export import exporter
 from .. import material_helper
 from ..scanners import generic
 

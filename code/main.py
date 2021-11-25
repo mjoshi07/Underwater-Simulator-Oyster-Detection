@@ -32,7 +32,7 @@ ACC_ERROR = accel_high_accuracy
 GYRO_ERROR = gyro_high_accuracy
 
 # sets random vibration to accel with RMS for x/y/z axis - 1/2/3 m/s^2, can be zero or changed to other values
-ACC_ENV = '[0.03 0.001 0.01]-random'
+ACC_ENV = '[0.003 0.001 0.01]-random'
 ACC_VIB = vib_from_env(ACC_ENV, IMU_RATE)
 
 
@@ -153,14 +153,15 @@ def start_pipeline(floor_noise,landscape_texture_dir,bluerov_path,bluerov_locati
             roll_array.append(rot_x)
             pitch_array.append(rot_y)
             yaw_array.append(rot_z)
-            save_values(position_dir, POSITIONS_FILENAME,[x_array,y_array,z_array,roll_array,pitch_array,yaw_array])
+            save_values(position_dir, POSITIONS_FILENAME,[x,y,z,rot_x,rot_y,rot_z])
 
             if frame_count >= TIME_TO_WAIT+3:
+                print(len(x_array))
                 # calculate true accelerometer values
-                true_accel = cal_linear_acc(x_array, y_array, z_array, IMU_RATE)
+                true_accel = cal_linear_acc(x_array, y_array, z_array, 30)
 
                 # calculate true gyroscope values
-                true_gyro = cal_angular_vel(roll_array, pitch_array, yaw_array, IMU_RATE)
+                true_gyro = cal_angular_vel(roll_array, pitch_array, yaw_array, 30)
 
                 # calculate simulated accelerometer values from true values
                 simulated_accel = acc_gen(IMU_RATE, true_accel, ACC_ERROR, ACC_VIB)

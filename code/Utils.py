@@ -41,15 +41,19 @@ def save_plots(out_dir, out_filename, data, center_offset):
     ThetaS = []
 
     for x, y, d in zip(x_coordinates, y_coordinates, distances):
+        # if x != 0:
+        #     print(x)
+        # if y != 0:
+        #     print(y)
         # since x, y of the scanned objects are in respect to origin, we shift origin to center_offset
-        x -= center_offset[0]
-        y -= center_offset[1]
+        # x -= center_offset[0]
+        # y -= center_offset[1]
 
         r, theta = convert_2_polar(x, y, d)
         Rs.append(r)
         ThetaS.append(theta)
 
-    plt.polar(ThetaS, Rs, marker='o')
+    plt.polar(ThetaS, Rs)
     plt.savefig(os.path.join(plot_dir, out_filename))
 
 
