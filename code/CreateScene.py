@@ -150,17 +150,18 @@ def create_landscape(FloorNoise=1.2, texture_dir_path=None):
         texImage.image = bpy.data.images.load(filepath=texture_path) 
         mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
         apply_texture(PassiveObject, mat)
-        bpy.ops.object.editmode_toggle()
+        # bpy.ops.object.editmode_toggle()
+        bpy.ops.object.mode_set(mode="EDIT")
 
         bpy.ops.uv.smart_project()
-
+    bpy.ops.object.mode_set(mode="OBJECT")
     # set terrain rigidbody to Passive
     bpy.ops.rigidbody.object_add(type='PASSIVE')
                 
     # Low Poly
-    bpy.ops.object.modifier_add(type='DECIMATE')
-    bpy.ops.object.modifier_set_active(modifier="Decimate")
-    bpy.context.object.modifiers["Decimate"].ratio =1
+    # bpy.ops.object.modifier_add(type='DECIMATE')
+    # bpy.ops.object.modifier_set_active(modifier="Decimate")
+    # bpy.context.object.modifiers["Decimate"].ratio =1
     bpy.context.object.rigid_body.collision_shape = 'MESH'
 
 
@@ -230,9 +231,9 @@ def add_oyster(model_dir_path=None,texture_dir_path=None, n_clusters=5, min_oyst
             bpy.ops.object.origin_set(type='GEOMETRY_ORIGIN', center='MEDIAN')
             
             # Low Poly
-            bpy.ops.object.modifier_add(type='DECIMATE')
-            bpy.ops.object.modifier_set_active(modifier="Decimate")
-            bpy.context.object.modifiers["Decimate"].ratio = 0.008
+            # bpy.ops.object.modifier_add(type='DECIMATE')
+            # bpy.ops.object.modifier_set_active(modifier="Decimate")
+            # bpy.context.object.modifiers["Decimate"].ratio = 0.008
             
             # Set oyster scales
             bpy.context.object.scale[0] = 0.005
