@@ -3,7 +3,7 @@ Development of an underwater simulator which will be used for oysters detection 
 Using a range scanner installed on BlueROV for navigation.
 
 ## Preview of underwater scene
-
+![image](https://github.com/mjoshi07/Underwater-Robotics/blob/main/data/render3.png)
 
 ## Tasks
 - [x] 2D bounding Box of objects from Blender `2.93`
