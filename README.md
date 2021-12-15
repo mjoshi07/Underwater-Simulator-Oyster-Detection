@@ -1,5 +1,9 @@
 # Underwater-Robotics
-Ongoing project 
+Development of an underwater simulator which will be used for oysters detection for the [project](https://isr.umd.edu/news/story/using-underwater-robots-to-detect-and-count-oysters). Simulator can generate random underwater landscape, randomize oysters location and oysters count and much more.
+Using a range scanner installed on BlueROV for navigation.
+
+## Preview of underwater scene
+
 
 ## Tasks
 - [x] 2D bounding Box of objects from Blender `2.93`
