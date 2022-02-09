@@ -10,7 +10,10 @@ Using a range scanner installed on BlueROV for navigation.
 - [x] Integrate IMU with blender
 - [x] Integrate LiDAR/SONAR with blender
 - [x] Train yolo on the generated data from blender
-- [ ] Rover position data with detections on PCL
+- [x] Train UNet for semantic segmentation task 
+- [ ] Train GAN to get realistic underwater images from renderd images
+- [ ] Train  multi-task learning network to predict segmentation, 3D depth estimation, and realistic underwater images in a single forward pass
+
 
 ## Google Colab Notebook
 * colab notebook used to train the yolov4-tiny, find it [here](https://colab.research.google.com/drive/1RePfSTb7c1tPAuh_D-ySLhrG78gxkF9D?usp=sharing)
