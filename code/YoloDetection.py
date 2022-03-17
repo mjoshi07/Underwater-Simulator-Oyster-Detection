@@ -1,11 +1,12 @@
 import cv2
 import os
 import numpy as np
+import tracker as tk
 
-conf_thresh = 0.7
+conf_thresh = 0.8
 nms_thresh = 0.4
 
-def detect(net, img):
+def detect(net, img, get_bboxes=False, draw_bboxes=False):
 
     (H, W) = img.shape[:2]
     ln = net.getLayerNames()
@@ -44,6 +45,7 @@ def detect(net, img):
 
     idxs = cv2.dnn.NMSBoxes(boxes, confidences, conf_thresh, nms_thresh)
 
+    bboxes = []
     # ensure at least one detection exists
     if len(idxs) > 0:
         # loop over the indexes we are keeping
@@ -52,8 +54,14 @@ def detect(net, img):
             (x, y) = (boxes[i][0], boxes[i][1])
             (w, h) = (boxes[i][2], boxes[i][3])
             # draw a bounding box rectangle and label on the image
-            color = (255, 0, 0)
-            cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+            if draw_bboxes:
+                color = (255, 0, 0)
+                cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+            if get_bboxes:
+                bboxes.append([x, y, x+w, y+h])
+
+    if get_bboxes:
+        return img, bboxes
 
     return img
 
@@ -99,38 +107,48 @@ def detect_img_dir(weights_path, config_path, img_dir, img_ext='.jpg'):
 
 
 def detect_video(weights_path, config_path, video_path):
-	"""
-	Perform detection, provided a video path, displays bounding boxes on the objects
+    """
+    Perform detection, provided a video path, displays bounding boxes on the objects
     :param weights_path:
     :param config_path:
     :param video_path:
     :return:
-	"""
+    """
 
-	if not os.path.exists(video_path):
-		print("FILE DOES NOT EXISTS")
-		return
+    if not os.path.exists(video_path):
+        print("FILE DOES NOT EXISTS")
+        return
 
-	net = cv2.dnn.readNet(weights_path, config_path)
-	cv2.namedWindow("detection", cv2.WINDOW_FREERATIO)
-	cap = cv2.VideoCapture(video_path)
+    net = cv2.dnn.readNet(weights_path, config_path)
+    cv2.namedWindow("detection", cv2.WINDOW_FREERATIO)
+    cap = cv2.VideoCapture(video_path)
 
-	while True:
-		ret, frame = cap.read()
-		frame = detect(net, frame)
-		cv2.imshow("detection", frame)
-		key = cv2.waitKey(1)
-		if key == ord('q'):
-			return
-		elif key == ord('p'):
-			cv2.waitKey(0)
+    centroid_tracker = tk.CentroidTracker(50, 5)  # parameters will vary with the video
 
+    while True:
+        ret, frame = cap.read()
+        frame, bboxes = detect(net, frame, True, True)
+
+        tracked_objects = centroid_tracker.update(bboxes)
+
+        for objectID, centroid in tracked_objects.items():
+            text = "ID {}".format(objectID)
+            cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.circle(frame, (centroid[0], centroid[1]), 4, (0, 255, 0), -1)
+
+        cv2.imshow("detection", frame)
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            return
+        elif key == ord('p'):
+            cv2.waitKey(0)
 
 
 if __name__ == "__main__":
 
-    weights_path = "../data/model/yolov4-tiny-custom_best.weights"
-    config_path = "../data/model/yolov4-tiny-custom.cfg"
+    weights_path = "../data/cnn_model/yolov4-tiny-custom_best.weights"
+    config_path = "../data/cnn_model/yolov4-tiny-custom.cfg"
 
     # img_path = "../data/test/test1.jpg"
     # detect_img(weights_path, config_path, img_path)
@@ -139,5 +157,6 @@ if __name__ == "__main__":
     # img_ext = '.png'	
     # detect_img_dir(weights_path, config_path, img_dir, img_ext)
 
-    video_path = r"D:\Programming\Underwater-Robotics\data\test\test_slow_motion.avi"
+    # video_path = r"D:\Programming\Underwater-Robotics\data\test\test_slow_motion.avi"
+    video_path = "../data/test/test_slow_motion.avi"
     detect_video(weights_path, config_path, video_path)
