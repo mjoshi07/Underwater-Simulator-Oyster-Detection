@@ -29,7 +29,8 @@ https://user-images.githubusercontent.com/31381335/158861480-1a5f3cbf-bdda-45ad-
 - [x] Integrate IMU with blender
 - [x] Integrate LiDAR/SONAR with blender
 - [x] Train yolo on the generated data from blender
-- [x] Train UNet for semantic segmentation task 
+- [x] Train network for semantic segmentation task 
+- [ ] Train network for depth estimation task 
 - [ ] Train GAN to get realistic underwater images from renderd images
 - [ ] Train  multi-task learning network to predict segmentation, 3D depth estimation, and realistic underwater images in a single forward pass
 
